@@ -9,4 +9,12 @@ public interface UserService {
   Users createUser(Users user) throws Exception;
 
   List<UserEntity> getAllUsers();
+
+  Boolean deleteUserByID(Long ID) throws Exception;
+
+  Users updateUser(Long ID, Users user) throws Exception;
+
+  UserEntity getUserByID(Long ID) throws Exception;
+
+  List<UserEntity> getUserByName(String name) throws Exception;
 }
