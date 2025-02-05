@@ -13,4 +13,6 @@ import com.example.InternProject.entity.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query(value = "SELECT u.* FROM users u WHERE u.name LIKE %:name%", nativeQuery = true)
     List<UserEntity> findByNameContaining(@Param("name") String name);
+
+    boolean existsByEmail(String email);
 }

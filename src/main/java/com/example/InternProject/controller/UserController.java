@@ -27,9 +27,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<Users> createUser(@RequestBody Users user) throws Exception {
-        return ResponseEntity.ok(userService.createUser(user));
+    // @PostMapping("/users")
+    // public ResponseEntity<Users> createUser(@RequestBody Users user) throws
+    // Exception {
+    // return ResponseEntity.ok(userService.createUser(user));
+    // }
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody Users user) {
+        try {
+            Users newUser = userService.createUser(user);
+            return ResponseEntity.ok(newUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/users/AllUsers")

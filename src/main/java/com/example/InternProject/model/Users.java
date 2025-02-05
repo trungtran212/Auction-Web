@@ -13,6 +13,7 @@ public class Users {
 
     private Long user_ID;
     private String name;
+    private String password;
     private String email;
     private String role;
     private String gender;

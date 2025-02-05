@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.InternProject.entity.UserEntity;
@@ -19,21 +21,50 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    // public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder
+    // passwordEncoder) {
+    // this.userRepository = userRepository;
+    // this.passwordEncoder = new BCryptPasswordEncoder(); // Khởi tạo encoder
+    // }
 
     @Override
+    // public Users createUser(Users user) throws Exception {
+    // try {
+    // UserEntity userEntity = new UserEntity();
+    // user.setCreateAt(LocalDateTime.now());
+    // user.setUpdateAt(LocalDateTime.now());
+
+    // BeanUtils.copyProperties(user, userEntity);
+    // userRepository.save(userEntity);
+
+    // return user;
+    // } catch (Exception e) {
+    // throw new Exception(e.getMessage());
+    // }
+    // }
     public Users createUser(Users user) throws Exception {
-        try {
-            UserEntity userEntity = new UserEntity();
-            user.setCreateAt(LocalDateTime.now());
-            user.setUpdateAt(LocalDateTime.now());
-
-            BeanUtils.copyProperties(user, userEntity);
-            userRepository.save(userEntity);
-
-            return user;
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+        // Kiểm tra xem email đã tồn tại chưa
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new Exception("Email already exists!");
         }
+
+        // Tạo đối tượng UserEntity và gán giá trị
+        UserEntity userEntity = new UserEntity();
+        user.setCreateAt(LocalDateTime.now());
+        user.setUpdateAt(LocalDateTime.now());
+
+        // **Mã hóa mật khẩu**
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Copy dữ liệu từ DTO sang entity
+        BeanUtils.copyProperties(user, userEntity);
+
+        // Lưu user vào database
+        userRepository.save(userEntity);
+
+        return user;
     }
 
     @Override
