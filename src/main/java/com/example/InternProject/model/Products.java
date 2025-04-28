@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tasks {
-    private Long taskID;
-    private String taskName;
-    private String taskStatus;
-    private String taskDesc;
+public class Products {
+    private Long productID;
+    private String productName;
+    private Double productPrice;
+    private String productDesc;
+    private String imageURL;
+    private Long timeRemaining;
     private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime endAt;
 }

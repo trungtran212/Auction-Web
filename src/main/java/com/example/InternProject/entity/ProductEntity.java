@@ -16,36 +16,39 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
 @Entity
-@Table(name = "USERS")
-public class UserEntity {
+@Table(name = "PRODUCTS")
+public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID", nullable = false, unique = true)
-    private Long userID;
+    @Column(name = "PRODUCT_ID", nullable = false, unique = true)
+    private Long productID;
 
-    @Column(name = "USER_NAME", nullable = false)
-    private String username;
+    @Column(name = "PRODUCT_NAME", nullable = false)
+    private String productName;
 
-    @Column(name = "ADDRESS", nullable = false)
-    private String address;
+    @Column(name = "PRODUCT_PRICE", nullable = false)
+    private Double productPrice;
 
-    @Column(name = "BALANCE", nullable = false)
-    private Double balance;
+    @Column(name = "PRODUCT_DESC")
+    private String productDesc;
 
-    @Column(name = "GENDER")
-    private String gender;
+    @Column(name = "IMAGE_URL", nullable = false)
+    private String imageURL;
+
+    @Column(name = "TIME_REMAINING", nullable = false)
+    private Long timeRemaining;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "CREATE_AT")
     private LocalDateTime createAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "UPDATE_At")
-    private LocalDateTime updateAt;
+    @Column(name = "END_AT")
+    private LocalDateTime endAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<BidEntity> bids;
 }

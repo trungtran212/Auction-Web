@@ -10,12 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Users {
-
-    private Long user_ID;
-    private String name;
-    private String password;
-    private String email;
-    private String role;
+    private Long userID;
+    private String username;
+    private String address;
+    private Double balance;
     private String gender;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
