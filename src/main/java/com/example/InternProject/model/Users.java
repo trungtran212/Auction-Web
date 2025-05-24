@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class Users {
     private Long userID;
     private String username;
+    private String password;
     private String address;
     private Double balance;
     private String gender;

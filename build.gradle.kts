@@ -24,8 +24,8 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-security") // 🔥 Cần thiết cho BCrypt
-	implementation("org.springframework.security:spring-security-crypto")  // 🔥 Chỉ dùng bcrypt mà không cần security full
+	// implementation("org.springframework.boot:spring-boot-starter-security") // 🔥 Cần thiết cho BCrypt
+	// implementation("org.springframework.security:spring-security-crypto")  // 🔥 Chỉ dùng bcrypt mà không cần security full
 	
 	// implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
