@@ -6,29 +6,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.InternProject.dto.LoginRequest;
-import com.example.InternProject.dto.LoginResponse;
-import com.example.InternProject.dto.RegisterRequest;
-import com.example.InternProject.service.AuthService;
-
-import lombok.RequiredArgsConstructor;
+import com.example.InternProject.model.User;
+import com.example.InternProject.service.UserService;
 
 @RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
+@RequestMapping("/auth")
 public class AuthController {
+    private final UserService userService;
 
-    private final AuthService authService;
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        String response = authService.register(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<User> register(@RequestBody User user) {
+        return ResponseEntity.ok(userService.register(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> login() {
+        return ResponseEntity.ok("Đăng nhập thành công!");
     }
 }

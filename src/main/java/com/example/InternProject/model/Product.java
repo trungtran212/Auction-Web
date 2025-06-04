@@ -1,31 +1,38 @@
 package com.example.InternProject.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "products")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "products")
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-
-    @Column(length = 1000)
     private String description;
 
-    private Double startingPrice;
+    private BigDecimal startingPrice;
 
-    private String imageUrl; // lưu link hoặc tên ảnh
+    private LocalDateTime createdAt;
+    private Long duration;
 
-    private LocalDateTime startTime;
+    private String imageUrl;
 
-    private LocalDateTime endTime;
+    private boolean finished = false;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Bid> bids; // Danh sách các bid của sản phẩm
 }

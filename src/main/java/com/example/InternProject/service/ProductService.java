@@ -1,77 +1,88 @@
 package com.example.InternProject.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.InternProject.dto.ProductRequest;
-import com.example.InternProject.dto.ProductResponse;
-import com.example.InternProject.exception.CustomException;
+import com.example.InternProject.model.Bid;
 import com.example.InternProject.model.Product;
+import com.example.InternProject.model.User;
+import com.example.InternProject.repository.BidRepository;
 import com.example.InternProject.repository.ProductRepository;
+import com.example.InternProject.repository.UserRepository;
 
 import java.util.List;
+
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
+    private final BidRepository bidRepository;
+    private final UserRepository userRepository;
 
-    public ProductResponse createProduct(ProductRequest request) {
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setStartingPrice(request.getStartingPrice());
-        product.setImageUrl(request.getImageUrl());
-        product.setStartTime(request.getStartTime());
-        product.setEndTime(request.getEndTime());
-
-        Product saved = productRepository.save(product);
-        return mapToResponse(saved);
+    public ProductService(ProductRepository productRepository, BidRepository bidRepository,
+            UserRepository userRepository) {
+        this.productRepository = productRepository;
+        this.bidRepository = bidRepository;
+        this.userRepository = userRepository;
     }
 
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(this::mapToResponse)
+    public Product createProduct(Product product) {
+        product.setCreatedAt(LocalDateTime.now());
+        product.setFinished(false);
+        return productRepository.save(product);
+    }
+
+    public List<Product> getOngoingProducts() {
+        return productRepository.findAllOngoingProducts();
+    }
+
+    public List<Product> getFinishedProducts() {
+        return productRepository.findAllFinishedProducts();
+    }
+
+    public List<Product> getUserWonProducts(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        List<Product> finished = productRepository.findAllFinishedProducts();
+
+        return finished.stream()
+                .filter(product -> {
+                    Optional<Bid> topBid = product.getBids().stream()
+                            .max(Comparator.comparing(Bid::getAmount));
+                    return topBid.isPresent() && topBid.get().getUser().getId().equals(user.getId());
+                })
                 .collect(Collectors.toList());
     }
 
-    public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Sản phẩm không tồn tại với id: " + id));
-        return mapToResponse(product);
-    }
+    public void checkAndFinalizeAuctions() {
+        List<Product> ongoing = productRepository.findByIsFinishedFalse();
 
-    public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Sản phẩm không tồn tại với id: " + id));
+        for (Product p : ongoing) {
+            LocalDateTime endTime = p.getCreatedAt().plusSeconds(p.getDuration());
+            if (LocalDateTime.now().isAfter(endTime)) {
+                p.setFinished(true);
 
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setStartingPrice(request.getStartingPrice());
-        product.setImageUrl(request.getImageUrl());
-        product.setStartTime(request.getStartTime());
-        product.setEndTime(request.getEndTime());
+                Optional<Bid> winningBid = bidRepository.findTopByProductOrderByAmountDesc(p);
+                if (winningBid.isPresent()) {
+                    User winner = winningBid.get().getUser();
+                    double amount = winningBid.get().getAmount();
 
-        Product updated = productRepository.save(product);
-        return mapToResponse(updated);
-    }
+                    if (winner.getBalance() >= amount) {
+                        winner.setBalance(winner.getBalance() - amount);
+                        winner.getWonProducts().add(p);
 
-    public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Sản phẩm không tồn tại với id: " + id));
-        productRepository.delete(product);
-    }
+                        userRepository.save(winner);
+                        System.out.println("✅ " + p.getName() + " thắng bởi " + winner.getUsername());
+                    } else {
+                        System.out.println("⚠️ " + winner.getUsername() + " không đủ tiền");
+                    }
+                }
 
-    private ProductResponse mapToResponse(Product product) {
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getStartingPrice(),
-                product.getImageUrl(),
-                product.getStartTime(),
-                product.getEndTime());
+                productRepository.save(p);
+            }
+        }
     }
 }
